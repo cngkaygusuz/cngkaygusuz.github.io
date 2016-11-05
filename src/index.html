@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        {% include 'templates/header.html' %}
-    </head>
-    <body>
-        <p>This is a normal paragraph.</p>
-    </body>
+<head>
+    {% include 'templates/header.html' %}
+</head>
+
+<body>
+    <table>
+        {% for entry in content_meta %}
+        <tr>
+            <td>{{ entry.date }}</td>
+            <td><a href="{{ entry.link }}">{{entry.title}}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
 </html>
 

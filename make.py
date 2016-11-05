@@ -2,12 +2,16 @@
 import os
 import sys
 import shutil
+import re
 
 import jinja2
 
 
-SRC_DIR = 'src'
+SRC_DIR = 'src/content'
 TARGET_DIR = 'build'
+
+INDEX_SRC = 'src/index.html'
+INDEX_TARGET = 'build/index.html'
 
 
 def render():
@@ -16,8 +20,13 @@ def render():
     # construct the index afterwards
     shutil.rmtree(TARGET_DIR, ignore_errors=True)
 
+    content_meta = []
+
     loader = jinja2.FileSystemLoader('.')
     env = jinja2.Environment(loader=loader)
+
+    title_getter = re.compile(r"<title>(.+?)</title>")
+    date_getter = re.compile(r'<meta name="date" content="(.+?)"/>')
 
     for entry in os.walk(SRC_DIR):
         src_dir_path, _, filenames = entry
@@ -29,11 +38,25 @@ def render():
             source_file = os.path.join(src_dir_path, filename)
             target_file = os.path.join(target_dir, filename)
             template = env.get_template(source_file)
-            
+
             rendered = template.render()
+
+            meta_entry = {
+                    'link': '#',
+                    'title': title_getter.search(rendered).group(1),
+                    'date': date_getter.search(rendered).group(1)
+                }
+            content_meta.append(meta_entry)
+
 
             with open(target_file, "w") as file_:
                 file_.write(rendered)
+
+    index_template = env.get_template(INDEX_SRC)
+    rendered = index_template.render(content_meta=content_meta)
+
+    with open(INDEX_TARGET, "w") as file_:
+        file_.write(rendered)
 
 
 def venv():
