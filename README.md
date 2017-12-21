@@ -1,1 +1,0 @@
-# cngkaygusuz.github.io
